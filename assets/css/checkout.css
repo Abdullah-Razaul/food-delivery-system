@@ -1,0 +1,10 @@
+.wrap{margin-top:18px; display:grid; grid-template-columns:1fr 360px; gap:16px}
+.box{padding:18px}
+.form{display:grid; gap:10px; margin-top:14px}
+label{font-weight:900; font-size:13px; color:var(--muted)}
+.summary{padding:18px; height:fit-content}
+.list{margin-top:10px; display:grid; gap:10px}
+.li{display:flex; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:8px}
+.tot{display:flex; justify-content:space-between; padding-top:10px; margin-top:8px}
+.error{margin-top:12px; background:rgba(230,57,70,.12); border:1px solid rgba(230,57,70,.20); color:#c81d2c; padding:10px 12px; border-radius:14px}
+@media (max-width:950px){.wrap{grid-template-columns:1fr}}

@@ -1,0 +1,36 @@
+.hero{margin-top:18px; padding:26px; display:grid; grid-template-columns:1.2fr .8fr; gap:18px}
+.hero-title{font-family:"Playfair Display",serif; font-size:56px; margin:0}
+.hero-sub{margin:10px 0 16px; color:var(--muted); font-weight:700}
+.hero-search{display:flex; gap:12px; align-items:center; max-width:720px}
+.hero-right{display:flex; justify-content:center; align-items:center}
+.phone{width:280px; padding:14px; border-radius:26px}
+.phone-screen{
+  height:260px; margin-top:12px;
+  border-radius:22px;
+  display:flex; align-items:center; justify-content:center;
+  font-weight:1000; font-size:28px;
+  background:radial-gradient(circle at 30% 20%, rgba(242,156,56,.25), transparent 55%),
+             radial-gradient(circle at 70% 80%, rgba(242,156,56,.20), transparent 55%),
+             #f9fafb;
+  border:1px dashed rgba(16,24,40,.12);
+}
+
+.block{margin-top:26px}
+.block-title{margin:0 0 6px; font-size:28px}
+
+.cats{margin-top:16px; display:flex; gap:18px; justify-content:center; flex-wrap:wrap}
+.cat{width:110px; height:110px; display:flex; align-items:center; justify-content:center; font-size:46px}
+
+.grid{margin-top:16px; display:grid; grid-template-columns:repeat(4,1fr); gap:16px}
+.r-card{position:relative; overflow:hidden; padding:14px}
+.promo{
+  position:absolute; left:12px; top:12px;
+  background:#d64545; color:#fff;
+  padding:7px 10px; border-radius:999px;
+  font-weight:900; font-size:12px;
+}
+.r-img{height:140px; border-radius:16px; background:#f2f4f7; display:flex; align-items:center; justify-content:center; font-size:58px}
+.r-name{margin-top:12px; font-size:18px; font-weight:1000}
+.r-meta{margin-top:6px; font-weight:900; color:#f2a024}
+@media (max-width:1100px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:900px){.hero{grid-template-columns:1fr}.hero-title{font-size:44px}.hero-search{flex-direction:column; align-items:stretch}}

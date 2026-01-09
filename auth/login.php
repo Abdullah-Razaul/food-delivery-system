@@ -44,7 +44,6 @@ include __DIR__."/../partials/header.php";
     </form>
 
     <div class="muted small">No account? <a class="link" href="<?= BASE_URL ?>/auth/register.php">Register</a></div>
-    <div class="muted small">Demo: admin@demo.com / owner@demo.com / rider@demo.com / customer@demo.com (password: 123456)</div>
   </div>
 </main>
 <?php include __DIR__."/../partials/footer.php"; ?>

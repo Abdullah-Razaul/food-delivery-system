@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__."/../config/db.php";
 require_once __DIR__."/../config/auth.php";
+
 $PAGE_TITLE="Checkout | SmartBite";
 $PAGE_CSS="checkout.css";
 
@@ -8,6 +9,7 @@ require_login();
 
 if(!isset($_SESSION["cart"])) $_SESSION["cart"] = [];
 $cart = $_SESSION["cart"];
+
 if(!$cart) redirect("/public/cart.php");
 
 $rid = (int)($_SESSION["cart_restaurant_id"] ?? 0);
@@ -16,28 +18,43 @@ if($rid<=0) redirect("/public/cart.php");
 $u = current_user();
 $uid = (int)$u["id"];
 
+$delivery = defined("DELIVERY_CHARGE") ? DELIVERY_CHARGE : 10;
+
 $error="";
+$items_total = 0;
+foreach($cart as $c){
+  $items_total += ((float)$c["price"] * (int)$c["qty"]);
+}
+$grand_total = $items_total + $delivery;
+
 if($_SERVER["REQUEST_METHOD"]==="POST"){
   $address = trim($_POST["address"] ?? "");
-  if(strlen($address) < 6) $error="Please enter a valid delivery address.";
-  if(!$error){
-    $total=0;
-    foreach($cart as $c) $total += $c["price"]*$c["qty"];
 
+  if(strlen($address) < 6){
+    $error="Please enter a valid delivery address.";
+  }
+
+  if(!$error){
+    // ✅ save GRAND total with delivery
     $stmt=$conn->prepare("INSERT INTO orders(customer_user_id,restaurant_id,status,total,address) VALUES(?,?, 'pending', ?, ?)");
-    $stmt->bind_param("iids",$uid,$rid,$total,$address);
+    $stmt->bind_param("iids",$uid,$rid,$grand_total,$address);
+
     if($stmt->execute()){
       $oid = $stmt->insert_id;
 
       $stmt2=$conn->prepare("INSERT INTO order_items(order_id,item_name,qty,price) VALUES(?,?,?,?)");
       foreach($cart as $c){
-        $name=$c["name"]; $qty=(int)$c["qty"]; $price=(float)$c["price"];
+        $name=$c["name"];
+        $qty=(int)$c["qty"];
+        $price=(float)$c["price"];
         $stmt2->bind_param("isid",$oid,$name,$qty,$price);
         $stmt2->execute();
       }
 
+      // clear cart after success
       $_SESSION["cart"] = [];
       unset($_SESSION["cart_restaurant_id"]);
+
       redirect("/public/orders.php");
     } else {
       $error="Could not create order.";
@@ -45,19 +62,19 @@ if($_SERVER["REQUEST_METHOD"]==="POST"){
   }
 }
 
-$total=0;
-foreach($cart as $c) $total += $c["price"]*$c["qty"];
-
 include __DIR__."/../partials/head.php";
 include __DIR__."/../partials/header.php";
 ?>
+
 <main class="container">
   <div class="wrap">
     <div class="card box">
       <h1 class="h1">Checkout</h1>
       <div class="muted">Confirm address and place order.</div>
 
-      <?php if($error): ?><div class="error"><?= htmlspecialchars($error) ?></div><?php endif; ?>
+      <?php if($error): ?>
+        <div class="error"><?= htmlspecialchars($error) ?></div>
+      <?php endif; ?>
 
       <form method="post" class="form">
         <label>Delivery Address</label>
@@ -68,19 +85,35 @@ include __DIR__."/../partials/header.php";
 
     <div class="card summary">
       <h2 class="h2">Order Summary</h2>
+
       <div class="list">
         <?php foreach($cart as $c): ?>
           <div class="li">
-            <div><strong><?= htmlspecialchars($c["name"]) ?></strong> <span class="muted small">x<?= (int)$c["qty"] ?></span></div>
-            <div>৳ <?= number_format($c["price"]*$c["qty"],2) ?></div>
+            <div>
+              <strong><?= htmlspecialchars($c["name"]) ?></strong>
+              <span class="muted small">x<?= (int)$c["qty"] ?></span>
+            </div>
+            <div>৳ <?= number_format((float)$c["price"]*(int)$c["qty"],2) ?></div>
           </div>
         <?php endforeach; ?>
       </div>
+
       <div class="tot">
-        <span class="muted">Total</span>
-        <strong>৳ <?= number_format($total,2) ?></strong>
+        <span class="muted">Items Total</span>
+        <strong>৳ <?= number_format($items_total,2) ?></strong>
+      </div>
+
+      <div class="tot">
+        <span class="muted">Delivery Charge</span>
+        <strong>৳ <?= number_format($delivery,2) ?></strong>
+      </div>
+
+      <div class="tot" style="margin-top:8px;">
+        <span class="muted">Grand Total</span>
+        <strong>৳ <?= number_format($grand_total,2) ?></strong>
       </div>
     </div>
   </div>
 </main>
+
 <?php include __DIR__."/../partials/footer.php"; ?>

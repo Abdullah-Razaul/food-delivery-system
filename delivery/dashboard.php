@@ -11,7 +11,7 @@ $uid=(int)$u["id"];
 
 $delivered=$conn->query("SELECT COUNT(*) c FROM orders WHERE delivery_user_id=$uid AND status='delivered'")->fetch_assoc()["c"]??0;
 $active=$conn->query("SELECT COUNT(*) c FROM orders WHERE delivery_user_id=$uid AND status IN('picked','ready')")->fetch_assoc()["c"]??0;
-$earnings = $delivered * 30; // demo calc
+$earnings = $delivered * 10; // demo calc
 
 $incoming=$conn->query("
   SELECT o.*, r.name AS rname, cu.name AS cname

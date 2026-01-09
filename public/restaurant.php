@@ -54,7 +54,11 @@ include __DIR__."/../partials/header.php";
         <div class="item card">
           <div class="item-name"><?= htmlspecialchars($it["name"]) ?></div>
           <div class="muted small">Tasty & fresh</div>
+
           <div class="price">৳ <?= number_format((float)$it["price"],2) ?></div>
+
+          <!-- ✅ NEW: Delivery charge display -->
+          <div class="muted small">Delivery charge: ৳ <?= defined("DELIVERY_CHARGE") ? DELIVERY_CHARGE : 10 ?></div>
 
           <form method="post" class="add">
             <input type="hidden" name="item_id" value="<?= (int)$it["id"] ?>">

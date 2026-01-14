@@ -13,13 +13,12 @@ include __DIR__."/../partials/header.php";
     <div class="grid2" style="margin-top:14px;">
       <div class="card inner">
         <div class="h2">Support</div>
-        <div class="muted">Email: support@smartbite.test</div>
-        <div class="muted">Phone: +880 1XXXXXXXXX</div>
+        <div class="muted">Email: abdullahrezaul8998@gmail.com</div>
+        <div class="muted">Phone: 01639041372</div>
       </div>
       <div class="card inner">
         <div class="h2">Office</div>
-        <div class="muted">Dhaka, Bangladesh</div>
-        <div class="muted small">This is a demo project UI.</div>
+        <div class="muted">Cumilla, Bangladesh</div>
       </div>
     </div>
   </div>

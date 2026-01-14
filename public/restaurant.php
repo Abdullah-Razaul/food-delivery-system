@@ -1,5 +1,7 @@
 <?php
 require_once __DIR__."/../config/db.php";
+require_once __DIR__."/../config/config.php";
+
 $PAGE_TITLE="Restaurant | SmartBite";
 $PAGE_CSS="restaurant_view.css";
 
@@ -8,11 +10,17 @@ $r = $conn->query("SELECT * FROM restaurants WHERE id=$rid")->fetch_assoc();
 if(!$r){ redirect("/public/browse.php"); }
 
 if(!isset($_SESSION["cart"])) $_SESSION["cart"] = [];
+
 if($_SERVER["REQUEST_METHOD"]==="POST"){
   $item_id = (int)($_POST["item_id"] ?? 0);
   $qty = max(1, (int)($_POST["qty"] ?? 1));
 
-  $it = $conn->query("SELECT id,name,price,restaurant_id FROM menu_items WHERE id=$item_id AND restaurant_id=$rid AND is_active=1")->fetch_assoc();
+  $it = $conn->query("
+    SELECT id,name,price,restaurant_id,image_url
+    FROM menu_items
+    WHERE id=$item_id AND restaurant_id=$rid AND is_active=1
+  ")->fetch_assoc();
+
   if($it){
     // force single restaurant cart
     if(isset($_SESSION["cart_restaurant_id"]) && (int)$_SESSION["cart_restaurant_id"] !== $rid){
@@ -22,14 +30,29 @@ if($_SERVER["REQUEST_METHOD"]==="POST"){
 
     $key = (string)$it["id"];
     if(!isset($_SESSION["cart"][$key])){
-      $_SESSION["cart"][$key] = ["id"=>$it["id"],"name"=>$it["name"],"price"=>(float)$it["price"],"qty"=>0];
+      $_SESSION["cart"][$key] = [
+        "id" => (int)$it["id"],
+        "name" => $it["name"],
+        "price" => (float)$it["price"],
+        "qty" => 0,
+        "image_url" => $it["image_url"] ?? ""
+      ];
     }
     $_SESSION["cart"][$key]["qty"] += $qty;
+
     redirect("/public/cart.php");
   }
 }
 
-$items = $conn->query("SELECT * FROM menu_items WHERE restaurant_id=$rid AND is_active=1 ORDER BY id DESC")->fetch_all(MYSQLI_ASSOC);
+// ✅ fetch items with image_url
+$items = $conn->query("
+  SELECT id,name,price,is_active,image_url
+  FROM menu_items
+  WHERE restaurant_id=$rid AND is_active=1
+  ORDER BY id DESC
+")->fetch_all(MYSQLI_ASSOC);
+
+$delivery_charge = defined("DELIVERY_CHARGE") ? DELIVERY_CHARGE : 10;
 
 include __DIR__."/../partials/head.php";
 include __DIR__."/../partials/header.php";
@@ -49,28 +72,45 @@ include __DIR__."/../partials/header.php";
 
   <section class="card section">
     <h2 class="h2">Menu</h2>
+
     <div class="menu">
       <?php foreach($items as $it): ?>
         <div class="item card">
+
+          <!-- ✅ Photo show (if exists) -->
+          <?php if(!empty($it["image_url"])): ?>
+            <img
+              src="<?= BASE_URL . htmlspecialchars($it["image_url"]) ?>"
+              alt="<?= htmlspecialchars($it["name"]) ?>"
+              style="width:100%;height:140px;object-fit:cover;border-radius:14px;margin-bottom:10px;"
+            >
+          <?php else: ?>
+            <div style="width:100%;height:140px;border-radius:14px;margin-bottom:10px;display:flex;align-items:center;justify-content:center;background:#f2f3f6;">
+              <span class="muted">No Photo</span>
+            </div>
+          <?php endif; ?>
+
           <div class="item-name"><?= htmlspecialchars($it["name"]) ?></div>
           <div class="muted small">Tasty & fresh</div>
 
           <div class="price">৳ <?= number_format((float)$it["price"],2) ?></div>
 
-          <!-- ✅ NEW: Delivery charge display -->
-          <div class="muted small">Delivery charge: ৳ <?= defined("DELIVERY_CHARGE") ? DELIVERY_CHARGE : 10 ?></div>
+          <!-- ✅ Delivery charge show -->
+          <div class="muted small">Delivery charge: ৳ <?= (int)$delivery_charge ?></div>
 
-          <form method="post" class="add">
+          <form method="post" class="add" style="margin-top:10px;">
             <input type="hidden" name="item_id" value="<?= (int)$it["id"] ?>">
             <input class="input qty" name="qty" value="1">
             <button class="btn btn-primary">Add</button>
           </form>
         </div>
       <?php endforeach; ?>
+
       <?php if(!$items): ?>
         <div class="muted">No menu items yet.</div>
       <?php endif; ?>
     </div>
   </section>
 </main>
+
 <?php include __DIR__."/../partials/footer.php"; ?>

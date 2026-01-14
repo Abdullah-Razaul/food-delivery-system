@@ -1,3 +1,5 @@
 .box{margin-top:18px; padding:18px}
 .add{margin-top:14px; display:grid; grid-template-columns:1.4fr .7fr auto; gap:10px}
+.inline .input{padding:10px 12px;border-radius:12px;border:1px solid #e6e6e6}
+.table td{vertical-align:middle}
 @media (max-width:900px){.add{grid-template-columns:1fr}}
